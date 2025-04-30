@@ -1,23 +1,22 @@
 # Use an official Python runtime as a parent image
 FROM python:3.9-slim-buster
 
-# Set the working directory to /app
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file into the container at /app
-COPY requirements.txt .
-
-# Install any dependencies
+# Copy the requirements file to the container to leverage Docker cache
+COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir google-cloud-storage gunicorn
 
-# Copy the application code into the container
+# Copy the rest of the application code to the container
 COPY . /app
 
-# Expose port 8080 for the Flask application
+# Set environment variables (if needed)
+# ENV MY_VAR=my_value
+
+# Expose the port that Flask listens on (Cloud Run expects 8080)
 EXPOSE 8080
 
-# Install gunicorn
-RUN pip install gunicorn
-
-# Set the entrypoint to run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app", "--workers", "2", "--threads", "2"]
+# Command to run the Flask application using Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app", "--workers", "1", "--timeout", "60"]
