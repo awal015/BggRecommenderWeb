@@ -1,4 +1,4 @@
-# Use an official Python runtime as a parent image
+   # Use an official Python runtime as a parent image
    FROM python:3.9-slim-buster
 
    # Set the working directory to /app
@@ -20,4 +20,4 @@
    ENV FLASK_APP=app.py
 
    # Run the Flask application
-   CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--worker-memory-limit", "512M", "app:app"]
+   CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
