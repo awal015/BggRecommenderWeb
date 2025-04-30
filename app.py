@@ -37,13 +37,13 @@ def load_pickle_from_gcs(filename):
 # Load pickled files from Cloud Storage
 def load_data():
     global tfidf, tfidf_matrix, tfidf_cat, tfidf_matrix_cat, user_item_matrix, games, games_cat
-    tfidf = load_pickle_from_gcs("tfidf.pkl")
-    tfidf_matrix = load_pickle_from_gcs("tfidf_matrix.pkl")
-    tfidf_cat = load_pickle_from_gcs("tfidf_cat.pkl")
-    tfidf_matrix_cat = load_pickle_from_gcs("tfidf_matrix_cat.pkl")
-    user_item_matrix = load_pickle_from_gcs("user_item_matrix.pkl")
-    games = load_pickle_from_gcs("games.pkl")
-    games_cat = load_pickle_from_gcs("games_cat.pkl")
+    tfidf = load_pickle_from_gcs("models/tfidf.pkl")
+    tfidf_matrix = load_pickle_from_gcs("models/tfidf_matrix.pkl")
+    tfidf_cat = load_pickle_from_gcs("models/tfidf_cat.pkl")
+    tfidf_matrix_cat = load_pickle_from_gcs("models/tfidf_matrix_cat.pkl")
+    user_item_matrix = load_pickle_from_gcs("models/user_item_matrix.pkl")
+    games = load_pickle_from_gcs("models/games.pkl")
+    games_cat = load_pickle_from_gcs("models/games_cat.pkl")
 
     if not all([tfidf, tfidf_matrix, tfidf_cat, tfidf_matrix_cat, user_item_matrix, games, games_cat]):
         print("Failed to load one or more pickle files from GCS.")
