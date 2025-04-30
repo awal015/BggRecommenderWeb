@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board Game Recommender</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="container mx-auto p-8 bg-white rounded-lg shadow-md">
+        <h1 class="text-3xl font-semibold text-blue-600 text-center mb-6">Board Game Recommender</h1>
+        <form method="post" class="mb-6">
+            <div class="mb-4">
+                <label for="input_type" class="block text-gray-700 text-sm font-bold mb-2">
+                    Recommend by:
+                </label>
+                <select name="input_type" id="input_type" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="user">BGG ID</option>
+                    <option value="game">Game Title</option>
+                     <option value="both">Both</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="user_name" class="block text-gray-700 text-sm font-bold mb-2">
+                    Enter BGG ID:
+                </label>
+                <input type="text" name="user_name" id="user_name"  class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div class="mb-4">
+                <label for="game_title" class="block text-gray-700 text-sm font-bold mb-2">
+                    Enter Game Title:
+                </label>
+                <input type="text" name="game_title" id="game_title" class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <button type="submit" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Get Recommendations
+            </button>
+        </form>
+
+        {% if message %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <strong class="font-bold">Error:</strong>
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% endif %}
+
+        {% if recommendations %}
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Recommendations:</strong>
+                <span class="block sm:inline">
+                    {% if source_type == 'user' %}
+                        For user: <span class="font-semibold">{{ user_name }}</span>
+                    {% elif source_type == 'game' %}
+                        Because you liked: <span class="font-semibold">{{ game_title }}</span>
+                     {% elif source_type == 'hybrid' %}
+                        For user: <span class="font-semibold">{{ user_name }}</span>
+                        Because you liked: <span class="font-semibold">{{ game_title }}</span>
+                    {% endif %}
+                </span>
+            </div>
+            <ul class="list-disc list-inside mt-4">
+                {% for game in recommendations %}
+                    <li class="text-gray-800 py-1">{{ game }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>

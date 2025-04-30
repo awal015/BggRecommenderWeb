@@ -1,0 +1,149 @@
+Board Game Recommendation Engine
+
+1.  Introduction
+
+    This application is a board game recommendation engine. It provides game suggestions based on user preferences or similar board games.  It uses a combination of collaborative filtering and content-based filtering techniques.
+
+2.  Features
+
+    * User-Based Recommendations: Recommends games based on the past ratings of similar users.
+    * Content-Based Recommendations:
+        * Recommends games based on the description of a selected game.
+        * Recommends games based on the category of a selected game.
+    * Hybrid Recommendations: Combines collaborative and content-based filtering for more robust recommendations.
+    * Web Interface: Provides a user-friendly web interface to input user names or game titles and view recommendations.
+    * JSON API: Offers an endpoint to retrieve recommendations in JSON format, suitable for use in other applications.
+    * Dockerized Deployment: The application can be easily deployed using Docker.
+
+3.  Dependencies
+
+    The application requires the following Python libraries:
+
+    * blinker==1.9.0
+    * click==8.1.8
+    * colorama==0.4.6
+    * Flask==3.1.0
+    * itsdangerous==2.2.0
+    * Jinja2==3.1.6
+    * joblib==1.4.2
+    * MarkupSafe==3.0.2
+    * numpy
+    * pandas==2.2.3
+    * python-dateutil==2.9.0.post0
+    * pytz==2025.2
+    * scikit-learn==1.6.1
+    * scipy
+    * six==1.17.0
+    * threadpoolctl==3.6.0
+    * tzdata==2025.2
+    * Werkzeug==3.1.3
+
+    These dependencies are listed in the `requirements.txt` file.
+
+4.  Installation
+
+    To run the application, follow these steps:
+
+    4.1.  Clone the repository (if applicable)
+
+    4.2.  Set up a Python environment (optional but recommended, e.g., using `venv` or `conda`).
+
+    4.3.  Install the dependencies:
+
+        ```bash
+        pip install -r requirements.txt
+        ```
+
+    4.4.  Ensure the data files are present:
+        The application relies on several pre-processed data files in pickle format.  These files are not in the application code:
+        * `tfidf.pkl`
+        * `tfidf_matrix.pkl`
+        * `tfidf_cat.pkl`
+        * `tfidf_matrix_cat.pkl`
+        * `user_item_matrix.pkl`
+        * `games.pkl`
+        * `games_cat.pkl`
+
+        In order to retrieve these files, the engine "Adam Wallach USCD capstone.ipynb must be run with the data set: https://www.kaggle.com/datasets/threnjen/board-games-database-from-boardgamegeek/
+
+    4.5. Run the application:
+        ```bash
+        python app.py
+        ```
+        The application will start a Flask development server, and you can access it in your web browser (usually at http://127.0.0.1:5000/).
+
+5.  Data Files
+
+    The application requires the following pre-processed data files:
+
+    * `tfidf.pkl`: TF-IDF vectorizer for game descriptions.
+    * `tfidf_matrix.pkl`: TF-IDF matrix of game descriptions.
+    * `tfidf_cat.pkl`: TF-IDF vectorizer for game categories.
+    * `tfidf_matrix_cat.pkl`: TF-IDF matrix of game categories.
+    * `user_item_matrix.pkl`: User-item rating matrix.
+    * `games.pkl`:  Game metadata (Name, BGGId, etc.).
+    * `games_cat.pkl`: Game metadata including category.
+
+6.  Usage
+
+    Web Interface:
+
+    * Open the application in your web browser.
+    * You can enter a user name to get recommendations based on similar users.
+    * You can enter a game title to get recommendations for similar games.
+    * You can enter both.
+
+    JSON API:
+
+    * The application also provides a JSON API endpoint at `/recommendations_json`.  This endpoint accepts POST requests with form data:
+        * `input_type`:  "user", "game", or "both"
+        * `user_name`:  (Required if `input_type` is "user" or "both")
+        * `game_title`: (Required if `input_type` is "game" or "both")
+    * The API returns a JSON response with the recommendations.
+
+7.  Docker Deployment
+
+    The application can be deployed using Docker. A `Dockerfile` is provided for building a Docker image.
+
+    7.1. Build the Docker image:
+
+        ```bash
+        docker build -t <your_image_name> .
+        ```
+
+    7.2. Run the Docker container:
+
+        ```bash
+        docker run -p 5000:5000 <your_image_name>
+        ```
+
+        The application will be accessible at http://localhost:5000.
+
+    7.3. Deploy to Google Cloud Run
+        * Follow the instructions in the previous conversation to deploy to Google Cloud Run.
+
+8.  Notes
+
+    * The application assumes that the pre-processed data files are in the same directory as the application code.
+    * For production deployments, it is recommended to use a production-ready WSGI server (e.g., Gunicorn) instead of the Flask development server.
+    * For serious production use, a more robust database system is recommended.
+
+9.  Example Usage
+
+    Here's an example of how to use the web interface:
+
+    1.  Start the application.
+    2.  Open your web browser to http://localhost:5000.
+    3.  To get recommendations for a user, enter the user's name in the "BGG ID" field, select "user" and click "Get Recommendations".
+    4.  To get recommendations for a game, enter the game's title in the "Game Title" field, select "game" and click "Get Recommendations".
+    5.  To get recommendations for a both, enter the user's name in the "BGG ID" field, then enter the game's title in the "Game Title" field, select "both" and click "Get Recommendations".
+
+10.  File Structure
+
+        app.py               - Main Flask application file
+        requirements.txt    - List of Python dependencies
+        README.txt           - This file
+        Dockerfile           - Dockerfile for containerization
+        *.pkl                - Pre-processed data files
+        templates/index.html - HTML template
+
