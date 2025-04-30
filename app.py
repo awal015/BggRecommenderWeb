@@ -5,6 +5,7 @@ from sklearn.metrics.pairwise import linear_kernel, cosine_similarity
 from scipy.spatial import distance
 from sklearn.neighbors import NearestNeighbors
 from flask import Flask, request, render_template, jsonify
+import os
 
 app = Flask(__name__)
 
@@ -244,4 +245,6 @@ def get_recommendations_json():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Use the port that Cloud Run provides
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port, debug=True)
