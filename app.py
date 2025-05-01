@@ -7,10 +7,13 @@ from scipy.spatial import distance
 from sklearn.neighbors import NearestNeighbors
 from flask import Flask, request, render_template, jsonify
 import time
+import pyarrow.parquet as pq  # Import PyArrow Parquet
+from scipy.sparse import csr_matrix
 
 app = Flask(__name__)
 BUCKET_NAME = "bggrecommenderv2"
 STORAGE_CLIENT = storage.Client()
+BUCKET = STORAGE_CLIENT.bucket(BUCKET_NAME)
 
 
 def load_pickle_from_gcs(filename):
@@ -24,12 +27,36 @@ def load_pickle_from_gcs(filename):
     """
     start_time = time.time()
     try:
-        bucket = STORAGE_CLIENT.bucket(BUCKET_NAME)
-        blob = bucket.blob(filename)
+        blob = BUCKET.blob(filename)
         data = blob.download_as_bytes()
         obj = pickle.loads(data)
         print(f"Loaded {filename} from GCS in {time.time() - start_time:.2f} seconds")
         return obj
+    except Exception as e:
+        print(f"Error loading {filename} from GCS: {e}")
+        return None
+
+
+def load_parquet_from_gcs(bucket_name, filename):
+    """Loads a Parquet file from Google Cloud Storage.
+
+    Args:
+        filename (str): The name of the Parquet file in the bucket.
+
+    Returns:
+        pd.DataFrame: The loaded data as a Pandas DataFrame, or None on error.
+    """
+    start_time = time.time()
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(filename)  # Get the Blob object for the file
+
+        # Download the file to a local buffer
+        df = pd.read_parquet(f'gs://{bucket_name}/{filename}')
+
+        print(f"Loaded {filename} from GCS in {time.time() - start_time:.2f} seconds")
+        return df
     except Exception as e:
         print(f"Error loading {filename} from GCS: {e}")
         return None
@@ -40,20 +67,27 @@ def load_data():
 
     start_time = time.time()
 
-    tfidf_matrix = load_pickle_from_gcs("models/tfidf_matrix.pkl")
-    user_item_matrix = load_pickle_from_gcs("models/user_item_matrix.pkl")
-    games = load_pickle_from_gcs("models/games.pkl")
+    tfidf_matrix = load_parquet_from_gcs(BUCKET_NAME, "tfidf_matrix.parquet")  # Load from Parquet
+    user_item_matrix = load_parquet_from_gcs(BUCKET_NAME, "user_item_matrix.parquet")  # Load from Parquet
+    games = load_parquet_from_gcs(BUCKET_NAME, "games.parquet")  # Load from Parquet
     games_cat = load_pickle_from_gcs("models/games_cat.pkl")
     tfidf_matrix_cat = load_pickle_from_gcs("models/tfidf_matrix_cat.pkl")
 
     end_time = time.time()
 
-    if not all([tfidf_matrix, user_item_matrix, games, games_cat, tfidf_matrix_cat]):
+    if not all([tfidf_matrix is not None, user_item_matrix is not None, games is not None, games_cat is not None,
+                tfidf_matrix_cat is not None]):
         print(f"Failed to load data from GCS in {end_time - start_time:.2f} seconds")
         return False
 
     print(f"Loaded all data from GCS in {end_time - start_time:.2f} seconds")
     return True
+
+
+# Load data at startup
+if not load_data():
+    print("Failed to load data, exiting")
+    exit()
 
 
 # ------------------------------
