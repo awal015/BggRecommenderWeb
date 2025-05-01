@@ -14,8 +14,6 @@ COPY . /app
 
 # Set environment variables (if needed)
 # ENV MY_VAR=my_value
-COPY service-account-key.json /app/service-account-key.json
-ENV GOOGLE_APPLICATION_CREDENTIALS="/app/service-account-key.json"
 
 # Expose the port that Flask listens on (Cloud Run expects 8080)
 EXPOSE 8080
