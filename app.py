@@ -40,11 +40,11 @@ def load_data():
 
     start_time = time.time()
 
-    tfidf_matrix = load_pickle_from_gcs("tfidf_matrix.pkl")
-    user_item_matrix = load_pickle_from_gcs("user_item_matrix.pkl")
-    games = load_pickle_from_gcs("games.pkl")
-    games_cat = load_pickle_from_gcs("games_cat.pkl")
-    tfidf_matrix_cat = load_pickle_from_gcs("tfidf_matrix_cat.pkl")
+    tfidf_matrix = load_pickle_from_gcs("models/tfidf_matrix.pkl")
+    user_item_matrix = load_pickle_from_gcs("models/user_item_matrix.pkl")
+    games = load_pickle_from_gcs("models/games.pkl")
+    games_cat = load_pickle_from_gcs("models/games_cat.pkl")
+    tfidf_matrix_cat = load_pickle_from_gcs("models/tfidf_matrix_cat.pkl")
 
     end_time = time.time()
 
