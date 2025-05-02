@@ -7,7 +7,6 @@ from scipy.spatial import distance
 from sklearn.neighbors import NearestNeighbors
 from flask import Flask, request, render_template, jsonify
 import time
-import pyarrow.parquet as pq  # Import PyArrow Parquet
 from scipy.sparse import csr_matrix
 
 app = Flask(__name__)
@@ -37,41 +36,16 @@ def load_pickle_from_gcs(filename):
         return None
 
 
-def load_parquet_from_gcs(bucket_name, filename):
-    """Loads a Parquet file from Google Cloud Storage.
-
-    Args:
-        filename (str): The name of the Parquet file in the bucket.
-
-    Returns:
-        pd.DataFrame: The loaded data as a Pandas DataFrame, or None on error.
-    """
-    start_time = time.time()
-    try:
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob(filename)  # Get the Blob object for the file
-
-        # Download the file to a local buffer
-        df = pd.read_parquet(f'gs://{bucket_name}/{filename}')
-
-        print(f"Loaded {filename} from GCS in {time.time() - start_time:.2f} seconds")
-        return df
-    except Exception as e:
-        print(f"Error loading {filename} from GCS: {e}")
-        return None
-
-
 def load_data():
     global tfidf_matrix, user_item_matrix, games, games_cat, tfidf_matrix_cat
 
     start_time = time.time()
 
-    tfidf_matrix = load_parquet_from_gcs(BUCKET_NAME, "tfidf_matrix.parquet")  # Load from Parquet
-    user_item_matrix = load_parquet_from_gcs(BUCKET_NAME, "user_item_matrix.parquet")  # Load from Parquet
-    games = load_parquet_from_gcs(BUCKET_NAME, "games.parquet")  # Load from Parquet
-    games_cat = load_pickle_from_gcs("models/games_cat.pkl")
-    tfidf_matrix_cat = load_pickle_from_gcs("models/tfidf_matrix_cat.pkl")
+    tfidf_matrix = load_pickle_from_gcs("tfidf_matrix.pkl")  # Load from Pickle
+    user_item_matrix = load_pickle_from_gcs("user_item_matrix.pkl")  # Load from Pickle
+    games = load_pickle_from_gcs("games.pkl")  # Load from Pickle
+    games_cat = load_pickle_from_gcs("games_cat.pkl")
+    tfidf_matrix_cat = load_pickle_from_gcs("tfidf_matrix_cat.pkl")
 
     end_time = time.time()
 
@@ -141,7 +115,7 @@ def recommend_games_knn(user_item_matrix, active_user_id, num_recommendations=10
 
 def content_based_recommendations(game_title, tfidf_matrix, games, top_n=10):
     idx = games[games['Name'] == game_title].index[0]
-    cosine_similarities = linear_kernel(tfidf_matrix.loc[[idx]], tfidf_matrix).flatten()
+    cosine_similarities = linear_kernel(tfidf_matrix[idx], tfidf_matrix).flatten()
     related_docs_indices = cosine_similarities.argsort()[:-top_n - 1:-1]
     related_docs_indices = related_docs_indices[related_docs_indices != idx]
     return games['Name'].iloc[related_docs_indices].tolist()
